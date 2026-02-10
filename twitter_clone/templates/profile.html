@@ -1,0 +1,30 @@
+{% extends 'my_base.html' %}
+<body>
+{% block content %}
+	<div class="profile-header flex space-x-3 items-center">	
+		<img src="/media/{{account.avatar_img}}" class="flex rounded-full h-24 w-24">
+		<h1 class="text-3xl font-bold text-white-500 mt-10">{{account}}</h1>
+		<a href="{% url 'chat' account.id %}">Chat</a>
+		{% include 'follow.html' with form=follow_form %}
+		{% include 'block.html' with form=block_form %}	
+	</div>
+	<div class="profile-posts-and-reposts">
+	{% for post in posts %}
+    <div class="rounded border-2 border-solid">
+      <div class="post_author">
+        <a class="flex items-center space-x-2">
+          <img src="/media/{{post.author.avatar_img}}" class="rounded-full h-12 w-12">
+          <h1>{{post.author}}</h1>
+        </a>
+      </div>
+      <div class="post_content">
+        {{post.content}}
+        <br>
+        <span class="msg_time">{{post.date|date:"Y-n-j, g:i:s a"}}</span>
+      </div>
+    </div>
+    <br>
+  {% endfor%}		
+	</div>
+{% endblock %}
+</body>

@@ -1,0 +1,123 @@
+{% include 'my_base.html' %}
+<title> {{chat}} | Chat</title> 
+{% block content %} 
+	<div class="flex justify-center mt-10 px-4 h-[500px]">
+	<div class="w-full max-w-[750px] rounded border-2 border-solid flex-col">
+
+		<div class="flex gap-3 p-3 bg-gray-100 border-b">
+			<img src="{{other_chatter_avi.url}}" class="w-10 h-10 rounded-full">
+			<span class="w-3 h-3 bg-green-500 rounded-full border border-white"</span>
+		</div>
+
+		<div class="overflow-y-auto bg-white p-4 flex-1" id="chat-log" onscroll="weeee()">
+			<div id="inner" class="rounded">
+				{% csrf_token %}
+
+			</div>
+		</div>
+
+		<div class="card-footer pt-2">
+			<textarea id="chat-message-input" placeholder="type your message..."></textarea>
+			<button id="chat-message-submit" type="submit"><i data-lucide="square-check"></i></button>
+		</div>
+
+	</div>
+	</div>
+{% endblock %}
+<script>
+	const chatSocket = new WebSocket(
+		(window.location.protocol === 'https:' ? 'wss://' : 'ws://') 
+		+ window.location.host
+		+ '/ws/core/chat/'
+		+ '{{chat_id}}'
+		+ '/'
+		);
+
+	chatSocket.onmessage = function(e) {
+		const data = JSON.parse(e.data);
+		const all = data.message.split(":");
+		const MSG = all[1].replace(/^\s+|\s+$|\s+(?=\s)/g, "");
+		const OTHERUSER = all[0];
+		fetch('/send_msg/', { 
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json',},
+			body: JSON.stringify({message: MSG, author: OTHERUSER }),
+		})
+			.then( response=> {
+				if (!response.ok) {
+					throw new Error('Network response not ok');
+				}
+				return response.text();
+			})
+			.then(html =>{
+				document.querySelector('#inner').innerHTML += html;
+			}) 
+			.catch(error => {
+				console.error('Fetch error', error);
+			})
+		goToBottom();
+	};
+
+	chatSocket.onclose = function(e) {
+		console.error('Chat socket closed unexpectedly');
+	};
+
+	document.querySelector('#chat-message-input').focus();
+	document.querySelector('#chat-message-input').onkeyup = function(e) {
+		if (e.keycode == 13) { //enter,return
+			document.querySelector('#chat-message-submit').click();
+		}
+	};
+
+	document.querySelector('#chat-message-submit').onclick = function(e) {
+		const messageInputDom = document.querySelector('#chat-message-input');
+		const message = messageInputDom.value;
+		chatSocket.send(JSON.stringify({
+			'account_id': '{{user.account.id}}',
+			'message': message,
+			'command': 'fetch_messages'
+		}));
+		messageInputDom.value = ''; 
+	};
+
+	var mult = 1;
+	chatSocket.onopen = function(e) {
+		var chat = document.getElementById('chat-log');
+		$.ajax({
+			type: "GET",
+			url: '/get_msg/{{chat_id}}/',
+			data: {'mult': mult},
+			dataType: 'json',
+			success: function (data) {
+				$('#inner').prepend(data);
+				goToBottom();
+			}
+		});
+	};
+
+	function weeee() {
+		var chat = document.getElementById('chat-log');
+		if (chat.scrollTop ==0) {
+			mult++;
+			$.ajax({
+				type: "GET",
+				url: '/get_msg/{{chat_id}}/',
+				data: {'mult': mult},
+				dataType: 'json',
+				success: function (data) { 
+					var old_height = $('inner').height();
+					$('inner').prepend(data);
+					var new_height = $('inner').height();
+					$('#chat-log').scrollTop(new_height-old_height);
+				},
+			});
+		}
+	};
+
+	function goToBottom() {
+		const messages = document.getElementById('chat-log');
+		messages.scrollTop = messages.scrollHeight;
+	};
+
+	goToBottom();
+</script>

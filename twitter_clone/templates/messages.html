@@ -1,0 +1,23 @@
+{% if requested_user != message.author %}
+	<div class="flex gap-3 p-3 bg-gray-100 border-b">
+		<div>
+			<img src="{{message.author.avatar_img.url}}" class="rounded-full w-10 h-10">
+			<h4>{{message.author}}</h4>
+		</div>
+		<div class="msg_container break-words">
+			{{message.context}}
+			<ul><li><span class="msg_time">{{message.date|date:"Y-n-j, g:i:s a"}}</span></li></ul>
+		</div>
+	</div>
+{% else %}
+	<div class="flex gap-3 p-3 bg-gray-100 border-b">
+		<div class="msg_container_send break-words">
+			{{message.context}}
+			<ul><li><span class="msg_time">{{message.date|date:"Y-n-j, g:i:s a"}}</span></li></ul>
+		</div>
+		<div>
+			<img src="{{message.author.avatar_img.url}}" class="rounded-full w-10 h-10">
+			<h4>{{message.author}}</h4>
+		</div>
+	</div>
+{% endif %}

@@ -1,0 +1,32 @@
+{% extends 'my_base.html' %}
+<body>
+{% block content %}
+<div class="mx-auto w-64">
+	<h1 class="text-3xl font-bold text-green-500 mt-10">On {{user}}'s feed</h1>
+	<div class="dotted-border border-1"> 
+		<form method="post" action="{% url 'feed'  %}" class="flex">
+			{% csrf_token %}
+			<textarea name="feedpost" class="w-full h-24 overflow-auto resize-none" placeholder="Add your message here..."></textarea>
+			<button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded mr-auto"><i data-lucide="circle-plus"></i></button>
+		</form>
+	</div>
+	<br>
+	{% for post in posts %}
+		<div class="rounded border-2 border-solid">
+			<div class="post_author">
+				<a href="{% url 'profile' post.author.user %}" class="flex items-center space-x-2">
+					<img src="/media/{{post.author.avatar_img}}" class="rounded-full h-12 w-12">
+					<h1>{{post.author}}</h1>
+				</a>
+			</div>
+			<div class="post_content">
+				{{post.content}}
+				<br>
+				<span class="msg_time">{{post.date|date:"Y-n-j, g:i:s a"}}</span>
+			</div>
+		</div>
+		<br>
+	{% endfor%}
+</div>
+{% endblock content %}
+</body>

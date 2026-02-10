@@ -1,0 +1,57 @@
+{% extends 'my_base.html' %}
+<head>
+	<title>Home</title>
+</head>
+<body>
+	{% block content %}
+	<div class="mx-auto w-100 border-solid border-1 rounded">
+		<div id='form_picker'>
+			<h1 class="flex justify-center">Hello Please Login/Register</h1>
+			<div class="flex space-x-2 justify-center">
+					<button onclick="whichForm('login_form')" class="block rounded text-center p-2 bg-green-500 text-white">Login</button>
+					<button onclick="whichForm('registration_form')" class="block rounded test-center p-2 bg-green-500 text-white">Register</button>
+			</div>
+		</div>
+
+		<div class="hidden" id="login_form">
+			<form action="{% url 'home' %}" method="post" class="">
+				{% csrf_token %}
+				<div>
+					{{ login_form.username.label }}
+					{{ login_form.username }}
+					{% if login_form.username.errors %}
+					{% endif %}
+				</div>
+
+				<div>
+					{{ login_form.password.label }}
+					{{ login_form.password }}
+					{% if login_form.password.errors %}
+					{% endif %}
+				</div>
+
+				<button type="submit" class="flex justify-center block rounded text-center p-2 bg-blue-500 text-white">Submit</button>
+			</form>
+		</div>
+
+		<div class="hidden" id="registration_form">
+			<form action="{% url 'registration' %}" method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				{{ registration_form }}
+				<button type="submit" class="block rounded text-center p-2 bg-blue-500 text-white">Submit</button>
+			</form>
+		</div>
+	</div>
+	<script>
+		function whichForm(form) {
+			document.getElementById('form_picker').classList.add('hidden');
+			if (form == 'login_form') {
+				document.getElementById('login_form').classList.remove('hidden');
+			}
+			else if (form == 'registration_form') {
+				document.getElementById('registration_form').classList.remove('hidden');
+			}
+		}
+	</script>
+	{% endblock %}
+</body>

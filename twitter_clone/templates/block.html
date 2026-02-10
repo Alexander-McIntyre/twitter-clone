@@ -1,0 +1,7 @@
+<form class="flex space-x-3 mt-10" method="post" action="{% url 'follow_or_block' account 'block'%}">
+	{% csrf_token %}
+	<button class="px-4 py-2 bg-red-600 rounded text-white" type="submit">Block</button>
+	{% for error_msg in form.non_field_errors %}
+		<h1 id='blocking' class="blocking text-blue-400">{{error_msg}}</h1>
+	{% endfor %}
+</form>
